@@ -1,0 +1,8 @@
+*.o
+*.user
+*.suo
+*.filters
+*.sdf
+*.opensdf
+*.log
+*.tlog
