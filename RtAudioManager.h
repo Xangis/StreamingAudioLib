@@ -1,33 +1,22 @@
 
-#if !defined(_OPENALMANAGER_H_)
-#define _OPENALMANAGER_H_
-
-#ifndef __WXMAC__
+#if !defined(_RTAUDIOMANAGER_H_)
+#define _RTAUDIOMANAGER_H_
 
 #include "RingBuffer.h"
-#include "al.h"
-#include "alc.h"
+#include "RtAudio.h"
 // On Linux, this Requires that alut-dev be installed:
-#include "alut.h"
 #include <vector>
 
 #include "AudioRecordingCallback.h"
 #include "SecondaryBuffer.h"
 #include "AudioBufferInterface.h"
 
-/** 
-     @brief     A wrapper for the ALSA audio library that implements DirectSound-like functionality.
-     This is a wrapper for the ALSA audio library that implements DirectSound-like functionality,
-     including the mixing and resampling of any number of secondary buffers into a primary playback
-     buffer.  The number of secondary buffers is passed to the constructor of ALSAManager.
-     @note      [class note]
-*/
-class OpenALManager : public AudioBufferInterface
+class RtAudioManager : public AudioBufferInterface
 {
 public:
     // Non-virtual methods
-	OpenALManager(int numBuffers);
-	~OpenALManager();
+	RtAudioManager(int numBuffers);
+	~RtAudioManager();
 	void Enumerate( void (*callback)(const char *) );
 	/// Get individual secondary buffer sample rate.
 	unsigned int GetSampleRate(int channel);
@@ -35,8 +24,6 @@ public:
 	bool CreateCaptureBuffer( AudioRecordingCallback * recordCallback = NULL, int* soundCard = NULL, const char *name = NULL);
 
 	int MonitorCaptureBuffer();
-    bool CheckALError( void );
-    bool CheckALCError( ALCdevice* device );
 
     virtual bool UnInit();
 	virtual bool Play();
@@ -74,12 +61,8 @@ private:
     // Non-virtual private methods and data
     /// This function takes our secondary buffers and mixes them into a single stream to feed to the primary buffer.
 	bool ProcessSoundBuffer();
-    // OpenAL source to send audio data to.
-    ALuint _playbackHandle; 
-    ALuint _playbackBuffers[2];
-    ALCcontext* _context;
-    ALCdevice* _device;
-    ALCdevice* _captureDevice;
+    // RtAudio source to send audio data to.
+    RtAudio* _audio;
 	unsigned int _playbackByteAlign;
 	int _playbackFrames;
 	bool _capturing;
@@ -89,14 +72,12 @@ private:
     int _format;
 	/// We may need to add some variables to track our buffer playing.
 	//int XrunRecover( snd_pcm_t* handle, int err );
-	bool MixAudio(ALuint workingBuffer);
+	//bool MixAudio(ALuint workingBuffer);
 	void CalculateChannelVolume(double* leftVolumeAdjustment, double* righVolumeAdjustment);
 	int ResampleChunk( unsigned char* channelData, int channelNumber, int bytesRead, int bytesRequested);
     virtual bool Play( int channel );
 	void RestartBufferIfNecessary( void );
 };
 
-#endif
-
-#endif // _OPENALMANAGER_H_
+#endif // _RTAUDIOMANAGER_H_
 
